@@ -1,0 +1,43 @@
+service: news-api-service
+
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: python3.9
+  region: us-east-1
+  stage: prod
+  timeout: 15
+  memorySize: 256
+
+  environment:
+    NEWSAPI_KEY: ${env:NEWSAPI_KEY}
+
+functions:
+  api:
+    handler: app.main.handler
+    layers:
+      - { Ref: PythonRequirementsLambdaLayer }
+    events:
+      - http:
+          path: news-api/{proxy+}
+          method: ANY
+
+plugins:
+  - serverless-python-requirements
+  - serverless-domain-manager
+
+custom:
+  pythonRequirements:
+    dockerizePip: true
+    dockerImage: public.ecr.aws/sam/build-python3.9
+    layer: true
+    slim: true
+
+  customDomain:
+    domainName: api.francklab.fyi
+    basePath: "v1"
+    stage: prod
+    createRoute53Record: true
+    endpointType: regional
+    certificateName: api.francklab.fyi
