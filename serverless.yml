@@ -25,7 +25,7 @@ functions:
 
 plugins:
   - serverless-python-requirements
-  - serverless-domain-manager
+
 
 custom:
   pythonRequirements:
@@ -33,11 +33,3 @@ custom:
     dockerImage: public.ecr.aws/sam/build-python3.9
     layer: true
     slim: true
-
-  customDomain:
-    domainName: api.francklab.fyi
-    basePath: "v1"
-    stage: prod
-    createRoute53Record: true
-    endpointType: regional
-    certificateName: api.francklab.fyi
