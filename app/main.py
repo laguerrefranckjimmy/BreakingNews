@@ -1,5 +1,5 @@
 from typing import Optional
-from fastapi import FastAPI, Query, Request
+from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 
@@ -12,17 +12,19 @@ app = FastAPI(
     version="1.3.0"
 )
 
-# ✅ CORS configuration
-origins = [
-    "https://francklab.fyi",
-    "http://localhost:5173",  # local dev
-]
+# ===========================
+# ✅ PRODUCTION-GRADE CORS
+# ===========================
+# Allow:
+#  - localhost with any port for dev
+#  - root and www domain
+allow_origin_regex = r"^https?://(localhost:\d+|francklab\.fyi|www\.francklab\.fyi)$"
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origin_regex=allow_origin_regex,
     allow_credentials=True,
-    allow_methods=["GET", "POST"],
+    allow_methods=["GET", "POST", "OPTIONS"],  # OPTIONS included for preflight
     allow_headers=["*"],
 )
 
@@ -42,4 +44,7 @@ def get_news(
 ):
     return fetch_news(country, category)
 
+# ===========================
+# AWS Lambda handler
+# ===========================
 handler = Mangum(app)
